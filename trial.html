@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <title>やることは、なにかな？</title>
+    <style>
+
+    body {
+      margin: 0 auto;
+      font-family: "Avenir Next";
+      display:flex;
+    }
+    
+    .wrap-sub1{
+      width: 25%;
+      text-align: left;
+      background-color: lemonchiffon;
+    }
+
+    .wrap-main{
+      width: 75%;
+      background-color: rgb(239, 247, 239);
+      display:flex;
+    }
+
+    .header{
+	  background-image: url('forest.jpg');
+	  background-color: #26d0b1;
+      border:4px solid rgb(182, 222, 38);
+      color: white;
+      width:59.5%;
+      height:34px;
+      position: fixed;
+      display:flex;
+    }
+
+    .process-work {
+      background-color: #b0e4f7;
+      user-select: auto;
+      margin-top: 0px;
+      padding:0px;
+      font-size: 7px;
+	  color: black;
+      float:left;
+      width:32%;
+    }
+
+    .display{
+        background-color: rgb(239, 247, 239);
+    }
+
+    .display1{
+        background-color: rgb(245, 240, 153);
+    }
+
+    .hidden{
+        display: none;
+    }
+        #imageContainer {
+            position: relative;
+            display: inline-block;
+        }
+        #mainImage {
+            width: 500px; /* 画像の表示サイズ */
+        }
+        .note-box {
+            position: absolute;
+            background-color: yellow;
+            padding: 5px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+
+        #coords {
+            position: absolute;
+            background-color: rgba(255, 255, 0, 0.9);
+            padding: 4px 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+<wrap class="wrap-main">
+    <div class="header">
+        <select id="work1", name="select">
+		  <option value="19">--どこをかんがえる？--</option>
+          <option value="0">いえのなか</option>
+
+        </select>
+    	  
+        &nbsp <button id="button2" onclick="reloadPage(event)">リセット</button>
+	 
+    </div>   
+
+    <div class="display">
+        <br>
+      <h3>&nbspがめんをタッチして、やることをみつけよう!&nbsp&nbsp&nbsp</h3>
+      <div id="imageContainer">
+        <img src="Safety.jpg" alt="サンプル画像" id="mainImage">
+        <pre id="note" class="note-box"></pre>
+        <div id="coords"></div>
+      </div>
+    </div>
+
+    <div class="display1">
+      <br>
+      <h3>&nbspせつめい</h3>
+      <p id="outline" style="font-size:20px">&nbsp&nbspやることは、なにかな？&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp</p>
+      <p id="pn" style="font-size:30px;  color: red"></p>
+      <br>
+      <br>
+      <br>
+      <h2>&nbspヒント</h2>
+      <p id="advice1"></p>
+      <p id="advice2"></p>
+    </div>
+
+<audio id="coinSound" src="correct.mp3" preload="auto"></audio>
+<audio id="perfect" src="perfect1.mp3" preload="auto"></audio>
+
+</wrap>
+
+<wrap1 class="wrap-sub1">
+    <h2>とくてん</h2>
+    <p id="miles" style="font-size:20px">&nbsp 0てん</p>
+    <p id="status" style="font-size:40px;  color: blue">がんばろう!</p>
+    <p>みつけたやること</p>
+    <p id="po0" class = "hidden"></p>
+    <p id="po1" class = "hidden"></p>
+    <p id="po2" class = "hidden"></p>
+    <p id="po3" class = "hidden"></p>
+    <p id="po4" class = "hidden"></p>
+    <p id="po5" class = "hidden"></p>
+    <p id="po6" class = "hidden"></p>
+    <p id="po7" class = "hidden"></p>
+    <p id="po8" class = "hidden"></p>
+    <p id="po9" class = "hidden"></p>
+
+</wrap1>
+
+<script>
+ //収録データ
+const database=[
+    ["0_k0","これから、おでかけします。",[["1)みどりのブロックをかたづける",[45,365,95,420]],["2)あかのブロックをかたづける",[210,344,250,385]],["3)きいろのブロックをかたづける",[354,330,395,370]],["4)あおのブロックをかたづける",[368,400,432,465]],["5)ドアはゆっくりあけしめする",[425,11,500,260]],"","","","",""]],
+    ["1_k0","これから、おうだんほどうをわたります。",[["1)しんごうが、あおになるまでまつ",[333,20,405,170]],["2)みぎをみる",[380,245,500,500]],["3)ひだりをみる",[0,245,150,500]],["4)さゆうにちゅうい",[200,245,350,500]],"","","","","",""]],
+    ["2_k0","あめがふっています。",[["1)みぞにおちないようにする",[275,200,500,500]],["2)すべらないようにちゅういする",[0,160,260,500]],["3)くるまがきていないかちゅういする",[0,50,240,159]],"","","","","","",""]],
+    ["3_k0","かわのちかくにきました。",[["1)かわにながされないようにちゅういする",[0,226,242,290]],["2)むしにさされないようにちゅういする",[370,300,500,500]],["3)きになにかないかちゅういする",[165,0,500,220]],"","","","","","","",""]],
+    ["4_k0","スーパーマーケットにあるいています。",[["1)ひだりのくるまにちゅういする",[0,110,180,230]],["2)みぎのくるまにちゅういする",[290,115,500,230]],["3)ほどうをあるく",[0,235,500,500]],"","","","","","",""]],
+    ["5_k0","いえにかえってきました。",[["1)うがいてあらいする",[330,40,500,330]],["2)だんさにちゅういする",[55,470,500,550]],["3)もちものをかたづける",[260,0,329,445]],"","","","","","",""]],    
+]
+
+var KY_advices1=[
+["おでかけ前には、かたづけしよう","ドアの先には人がいるかもしれない、ゆっくりあけよう","きれいなおへやはきもちいい"],
+["しんごうが赤のときは止まって待とう","しんごうが青でも左右をかくにんしよう","右から何かきていなかかくにんしよう","左から何かきていないかかくにんしよう"],
+["雨の日はすべりやすいのでちゅういする","みぞにおちたらながされる、きけん","雨のひは車も見えにくくなるので遠くにもちゅういする"],
+["川にながされないようにちゅういする","草むらでは虫さされにちゅういする","木の中になにかあるかも"],
+["ちゅうしゃじょうでは車のうごきにちゅういする","ほうどうをあるくようにしよう","車は止まってくれないことがある"],
+["いえにかえったら、うがい手あらいする","もちものはきまったところにかたづけよう","だんさでつまづかないようにしよう"]
+];
+
+var KY_advices2=[
+[""]
+];
+
+    var image = document.getElementById("mainImage"); //イラスト
+    var note = document.getElementById("note"); //
+    var pn = document.getElementById("pn"); //正解の数
+    var outline = document.getElementById("outline");
+    var ad1 = document.getElementById("advice1");
+    var mi = document.getElementById("miles");
+    var st = document.getElementById("status");
+    var points = document.getElementById("points");
+    var miles = 0;
+    var record = [];
+    var db = [];
+    var dl = database.length;
+    var rank = 0;
+
+    work1.addEventListener('change',changed);
+     function changed(){
+        //初期化
+        db = [];
+        record = [];
+        miles = 0;
+        rank = 0;
+        note.style.display = "none";
+        ad1.innerHTML = "";
+        st.innerHTML = "";
+        mi.innerHTML = "&nbsp" + miles +"miles";
+        work1 = document.getElementById("work1").value;
+        console.log(work1)
+        
+        for(let i = 0; i < 10; i++){
+            let el = document.getElementById("po" + i);
+            el.classList.add("hidden");
+        }
+
+        for (let i = 0; i < dl; i++){
+            db1 = [];                  
+            key = database[i][0];
+            key = key.split("_")[0];
+            
+            if(work1 == key){            
+              db1 = [...database[i]];
+              aso = 1;
+              db1.push(aso);
+              db.push(db1);
+             } else {
+              db1 = [...database[i]];
+              aso = 0;
+              db1.push(aso);
+              db.push(db1);
+             }
+        }
+
+        db.sort((a, b) => b[3] - a[3]);
+
+        //work2 == key.split("_")[0]
+        ln=db[rank][2];
+        nullCount = ln.filter(item => item === "").length;
+        ln1=ln.length-nullCount;
+        var filename =db[rank][0] +'.jpg';
+        var photo1 = filename;
+        image.src = photo1;
+        pn.innerHTML = "&nbsp" + "やることの数:"+"&nbsp" + ln1 + "点" +"&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" ;
+        outline.innerHTML = "&nbsp" + db[rank][1];
+
+        for(let i = 0; i < 10; i++){
+            let el = document.getElementById("po" + i);
+            el.innerHTML = "&nbsp" + db[rank][2][i][0];
+        }
+
+     } 
+
+    image.addEventListener("click", function(event) {
+        // 画像上のクリック座標を取得
+        const rect = image.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+
+        ln=db[rank][2]; //
+        wt=db[rank][0]; //作業の種類（メインキー）
+        nullCount = ln.filter(item => item === "").length;
+        ln1=ln.length-nullCount;
+
+        note.style.display = "none";
+
+        let numStr = wt.split("_")[0];  // "_"で分割し、前半を取得
+        let wt1 = parseInt(numStr); //作業番号の取得
+        adl = KY_advices1[wt1].length;
+        let adr = Math.floor(Math.random() * adl); //アドバイスの乱数
+
+        ad1.innerHTML = KY_advices1[wt1][adr]; //アドバイス内容　表示
+
+        
+        // クリック位置が特定範囲内なら注意表示
+        for (let i = 0; i < ln1; i++) {
+  
+            a1=db[rank][2][i][1][0];
+            a2=db[rank][2][i][1][2];
+            b1=db[rank][2][i][1][1];
+            b2=db[rank][2][i][1][3];
+
+             if (x >= a1 && x <= a2 && y >= b1 && y <= b2) {
+                 ch=1;
+                 let el = document.getElementById("po" + i);
+                 note.style.left = (x + 10) + "px";
+                 note.style.top = (y + 10) + "px";
+                 note.style.display = "block";
+                 note.textContent="⚠️やること\n" + db[rank][2][i][0];
+
+                 if(record.includes(i)){
+                    ch=0;
+                 } else {
+                          const sound = document.getElementById('coinSound');
+                          sound.currentTime = 0; // 連打対応：音を最初から再生
+                          sound.play();
+                 }
+                 miles = miles + 100/ln1*ch;
+                 miles1 = Math.floor(miles);
+                 mi.innerHTML = "&nbsp" + miles1 +"てん";
+                 record.push(i);
+                 el.classList.remove("hidden");
+
+                 if(miles1 > 0 && miles1 < 50){
+                    st.innerHTML = "Good!";
+                 } else if(miles1 >= 50 && miles1 < 100){
+                    st.innerHTML = "Great!";
+                 } else if(miles1 >= 100){
+                    st.innerHTML = "Perfect!";
+                                
+                    const sound = document.getElementById('perfect');
+                          sound.currentTime = 0; // 連打対応：音を最初から再生
+                          sound.play();
+
+                 }
+
+                 }
+        }
+
+    });
+
+    const coords = document.getElementById("coords");
+    const container = document.getElementById("imageContainer");
+
+    image.addEventListener("mousemove", function(event) {
+        const rect = image.getBoundingClientRect();
+        const x = Math.round(event.clientX - rect.left);
+        const y = Math.round(event.clientY - rect.top);
+
+        // 表示を更新
+        coords.textContent = `X: ${x}, Y: ${y}`;
+        coords.style.left = (x + 10) + "px";
+        coords.style.top = (y + 10) + "px";
+        coords.style.display = "none"; //エディターモードon
+    });
+
+    image.addEventListener("mouseleave", function() {
+        coords.style.display = "none";
+    });
+
+    image.addEventListener("mouseenter", function() {
+        coords.style.display = "block";
+    });
+
+    function reloadPage() {
+      location.reload();
+    }
+
+     function next(){
+        //次の場面表示
+        rank = rank + 1;
+        if(rank >= dl){
+            rank = 0;
+        };
+
+        record = [];
+        miles = 0;
+        note.style.display = "none";
+        ad1.innerHTML = "";
+        st.innerHTML = "";
+        mi.innerHTML = "&nbsp" + miles +"miles";
+        //work1 = document.getElementById("work1").value;
+
+        
+        for(let i = 0; i < 10; i++){
+            let el = document.getElementById("po" + i);
+            el.classList.add("hidden");
+        }
+
+        ln=db[rank][2];
+        nullCount = ln.filter(item => item === "").length;
+        ln1=ln.length-nullCount;
+        var filename =db[rank][0] +'.jpg';
+        var photo1 = filename;
+        image.src = photo1;
+        pn.innerHTML = "&nbsp" + "やることの数:"+"&nbsp" + ln1 + "点"+"&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp";
+        outline.innerHTML = "&nbsp" + db[rank][1];
+
+        for(let i = 0; i < 10; i++){
+            let el = document.getElementById("po" + i);
+            el.innerHTML = "&nbsp" + db[rank][2][i][0];
+        }
+
+        //作業の特定
+        wt=db[rank][0]; //作業の種類（メインキー）
+        let numStr = wt.split("_")[0];  // "_"で分割し、前半を取得
+        let wt1 = parseInt(numStr); //作業番号の取得
+
+        const select = document.getElementById("work1");
+        const optionToSelect = [...select.options].find(opt => parseInt(opt.value) === wt1);
+        if (optionToSelect) {
+            optionToSelect.selected = true;
+        }
+
+
+     } 
+    
+    function previous(){
+        //次の場面表示
+        rank = rank - 1;
+        if(rank < 0){
+            rank = dl - 1;
+        };
+
+        record = [];
+        miles = 0;
+        note.style.display = "none";
+        ad1.innerHTML = "";
+        st.innerHTML = "";
+        mi.innerHTML = "&nbsp" + miles +"miles";
+        work1 = document.getElementById("work1").value;
+
+        
+        for(let i = 0; i < 10; i++){
+            let el = document.getElementById("po" + i);
+            el.classList.add("hidden");
+        }
+
+        ln=db[rank][2];
+        nullCount = ln.filter(item => item === "").length;
+        ln1=ln.length-nullCount;
+        var filename =db[rank][0] +'.jpg';
+        var photo1 = filename;
+        image.src = photo1;
+        pn.innerHTML = "&nbsp" + "やることの数:"+"&nbsp" + ln1 + "点"+"&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" ;
+        outline.innerHTML = "&nbsp" + db[rank][1];
+
+        for(let i = 0; i < 10; i++){
+            let el = document.getElementById("po" + i);
+            el.innerHTML = "&nbsp" + db[rank][2][i][0];
+        }
+
+        //作業の特定
+        wt=db[rank][0]; //作業の種類（メインキー）
+        let numStr = wt.split("_")[0];  // "_"で分割し、前半を取得
+        let wt1 = parseInt(numStr); //作業番号の取得
+
+        const select = document.getElementById("work1");
+        const optionToSelect = [...select.options].find(opt => parseInt(opt.value) === wt1);
+        if (optionToSelect) {
+            optionToSelect.selected = true;
+        }
+
+     }
+
+
+</script>
+
+</body>
+</html>
